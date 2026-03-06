@@ -1,12 +1,13 @@
 const { sendOTP, checkOTP } = require("../Middleware/auth.middleware");
-
+const jwt = require("jsonwebtoken");
+// const bcrypt = require("bcryptjs");
 const User =require('../Modal/auth.Schema')
 // Send OTP
 exports.register = async (req, res) => {
   try {
     const { name, email, phone } = req.body;
 
-    // ✅ Validation
+ 
     if (!name || !email || !phone) {
       return res.status(400).json({
         success: false,
@@ -14,25 +15,29 @@ exports.register = async (req, res) => {
       });
     }
 
-    // ✅ Check if user already exists
+  
     let user = await User.findOne({ phone });
 
     if (!user) {
-      // ✅ Create new user
+     
       user = new User({
         name,
         email,
         phone,
       });
     } else {
-      // ✅ Update existing user
+    
       user.name = name;
       user.email = email;
     }
 
     await user.save();
+     const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-    // 📲 Send OTP via Twilio
     const response = await sendOTP(phone);
 
     res.json({
@@ -40,6 +45,7 @@ exports.register = async (req, res) => {
       message: "User saved & OTP sent",
       status: response.status,
       user,
+       token,
     });
 
   } catch (err) {

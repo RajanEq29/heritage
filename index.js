@@ -3,16 +3,24 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const connectDB = require("./DB/Database");
 const authrouter=require('./Router/authrouter')
-
+const cors = require("cors");
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-
+app.use(
+  cors({
+    origin: "http://localhost:5173", 
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use("/api/auth",authrouter);
 const PORT = process.env.PORT || 5000;
-
+app.get("/", (req, res) => {
+  res.send("Hello from GET API");
+});
 connectDB()
   .then(() => {
     console.log("✅ DB connected");
