@@ -160,3 +160,129 @@ exports.deleteVisit = async (req, res) => {
     });
   }
 };
+
+
+exports.getAllPages = async (req, res) => {
+  try {
+
+    const users = await UserVisit.find();
+
+    const allVisits = users.flatMap(u => u.visits);
+
+    res.status(200).json({
+      success: true,
+      data: allVisits
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+};
+
+exports.getTittalpage = async (req, res) => {
+  try {
+
+    console.log("------->12");
+
+    const users = await UserVisit.find();
+
+
+    const allVisits = users.flatMap(user => user.visits);
+
+
+    const livingRoomVisits = allVisits.filter(
+      visit => visit.title === "Living Rooms"
+    );
+
+
+
+    const totalCount = livingRoomVisits.length;
+
+
+    const totalDuration = livingRoomVisits.reduce(
+      (sum, visit) => sum + (visit.duration || 0),
+      0
+    );
+
+    res.status(200).json({
+      success: true,
+      page: "Living Rooms",
+      totalVisits: totalCount,
+      totalDuration: totalDuration
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+}
+
+exports.getAllPageVisitsOverview = async (req, res) => {
+
+  try {
+    ;
+    const users = await UserVisit.find().sort({ createdAt: -1 });
+
+    const pageStats = {};
+
+    users.forEach(user => {
+      user.visits.forEach(visit => {
+        const title = visit.title || "Unknown Page";
+        const path = visit.path || "";
+
+        const key = title;
+
+        if (!pageStats[key]) {
+          pageStats[key] = {
+            title: title,
+            path: path,
+            totalVisits: 0,
+            totalTimeSpent: 0,
+            users: []
+          };
+        }
+
+        pageStats[key].totalVisits += 1;
+        pageStats[key].totalTimeSpent += (visit.duration || 0);
+
+        pageStats[key].users.push({
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          visitId: visit.visitId,
+          pageVisits: visit.pageVisits,
+          timestamp: visit.timestamp,
+          duration: visit.duration
+        });
+      });
+    });
+
+    const result = Object.values(pageStats);
+
+    res.status(200).json({
+      success: true,
+      count: result.length,
+      data: result
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching page visits overview",
+    });
+  }
+};

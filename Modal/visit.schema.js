@@ -6,7 +6,7 @@ const { default: mongoose } = require("mongoose");
 
 const pageVisitSchema = new mongoose.Schema({
   pageId: {
-    type: String, 
+    type: String,
   },
   duration: {
     type: Number,
@@ -27,7 +27,7 @@ const visitSchema = new mongoose.Schema({
   },
   pageVisits: {
     type: Map,
-    of: Number, 
+    of: Number,
     default: {}
   }
 }, { _id: false });
@@ -38,7 +38,7 @@ const userVisitSchema = new mongoose.Schema({
   email: String,
   message: String,
 
-  visits: [visitSchema], 
+  visits: [visitSchema],
 
   totalTimeSpent: {
     type: Number,
