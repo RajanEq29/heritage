@@ -231,6 +231,7 @@ exports.getTittalpage = async (req, res) => {
 }
 
 exports.getAllPageVisitsOverview = async (req, res) => {
+  console.log('____________>12')
 
   try {
     ;
@@ -251,12 +252,24 @@ exports.getAllPageVisitsOverview = async (req, res) => {
             path: path,
             totalVisits: 0,
             totalTimeSpent: 0,
+            pageBreakdown: {},
             users: []
           };
         }
 
         pageStats[key].totalVisits += 1;
         pageStats[key].totalTimeSpent += (visit.duration || 0);
+
+        // Aggregate page-specific time spent
+        if (visit.pageVisits && typeof visit.pageVisits.forEach === 'function') {
+          visit.pageVisits.forEach((duration, page) => {
+            const pageNum = page.toString();
+            if (!pageStats[key].pageBreakdown[pageNum]) {
+              pageStats[key].pageBreakdown[pageNum] = 0;
+            }
+            pageStats[key].pageBreakdown[pageNum] += (duration || 0);
+          });
+        }
 
         pageStats[key].users.push({
           name: user.name,
