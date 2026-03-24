@@ -14,7 +14,7 @@ app.use(
         origin: [
       "http://localhost:5173",
       "https://heritag-12.netlify.app",
-      "https://hertagea-admin.netlify.app/"
+      "https://hertagea-admin.netlify.app"
     ],
 
     methods: ["GET", "POST", "PUT", "DELETE"],
